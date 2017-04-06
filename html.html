@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>photo</title>
+    <link rel="shortcut icon" href="img/icon.gif">
+    <style>
+        .photos {
+            width: 480px;
+            height: 640px;
+            margin: 30px auto;
+            background: lightslategray;
+            overflow: hidden;
+        }
+        .photos div{
+            float:left;
+            background:lightcoral;
+            width:150px;
+            height:150px;
+            margin:5px;
+        }
+        .photos div img{
+            width:150px;
+            height:150px;
+        }
+    </style>
+</head>
+<body>
+<div class="photos" id="photos">
+    <div><img src="img/1.png" alt=""></div>
+    <div><img src="img/2.png" alt=""></div>
+    <div><img src="img/3.png" alt=""></div>
+    <div><img src="img/4.png" alt=""></div>
+    <div><img src="img/5.png" alt=""></div>
+    <div><img src="img/6.png" alt=""></div>
+    <div><img src="img/7.png" alt=""></div>
+    <div><img src="img/8.png" alt=""></div>
+    <div><img src="img/9.png" alt=""></div>
+    <div><img src="img/10.png" alt=""></div>
+    <div><img src="img/11.png" alt=""></div>
+    <div><img src="img/12.png" alt=""></div>
+</div>
+<script>
+    var oBox=document.getElementById('photos');
+    var oDivs=oBox.getElementsByTagName('div');
+    //ES6类数组转数组；
+    var aDivs=Array.from(oDivs);
+    //定义全局变量n，供所有的div盒子使用；
+    var n=0;
+    oBox.style.position="relative";
+    //通过循环，将所有盒子由浮动布局转为定位；并保存各自的初始位置；
+    for(var i=oDivs.length-1;i>=0;i--){
+        var cur=oDivs[i];
+        cur.style.top=cur.offsetTop-5+"px";
+        cur.style.left=cur.offsetLeft-5+"px";
+        cur.style.position="absolute";
+        cur.initTop=cur.offsetTop-5;
+        cur.initLeft=cur.offsetLeft-5;
+        //为每一个盒子绑定mousedown事件；
+        cur.onmousedown=down;
+    }
+    function down(e) {
+        var target=e.target.parentNode;
+        e.preventDefault();
+        this.x=e.pageX;
+        this.y=e.pageY;
+        this.l=this.offsetLeft;
+        this.t=this.offsetTop;
+        addZindex(this);
+        this.onmousemove=function (e) {
+            this.style.left=this.l+e.pageX-this.x+"px";
+            this.style.top=this.t+e.pageY-this.y+"px";
+            aDivs.forEach( (item,index)=> {
+                if(item==this)return;
+                var bool=isHited(this,item);
+
+                if(bool){
+                    item.style.background='blueviolet'
+                }else{
+                    item.style.background='lightcoral'
+                }
+                var pos=Math.pow(this.offsetLeft-item.offsetLeft,2)+Math.pow(this.offsetTop-item.offsetTop,2);
+                if(pos<10){
+                    changePlace(this,item)
+                }
+            });
+        };
+        document.onmouseup= (e) =>{
+            this.onmousemove=null;
+            this.style.top=this.initTop+"px";
+            this.style.left=this.initLeft+"px";
+            aDivs.forEach(function (item) {
+                item.style.background='lightcoral'
+            })
+        }
+    }
+    //改变盒子层级；
+    function addZindex(ele) {
+        n++;
+        ele.style.zIndex=n;
+    }
+    //检测碰撞；
+    function isHited(a, b) {
+        var aR=a.offsetLeft+a.offsetWidth;
+        var aB=a.offsetTop+a.offsetHeight;
+        var bR=b.offsetLeft+b.offsetWidth;
+        var bB=b.offsetTop+b.offsetHeight;
+        if(aR>b.offsetLeft&&a.offsetLeft<bR&&aB>b.offsetTop&&a.offsetTop<bB){
+            return true;
+        }else{
+            return false
+        }
+    }
+    //交换位置；
+    function changePlace(a, b) {
+        a.style.left=b.initLeft+"px";
+        a.style.top=b.initTop+"px";
+        b.style.left=a.initLeft+"px";
+        b.style.top=a.initTop+"px";
+        a.initTop=a.offsetTop-5;
+        a.initLeft=a.offsetLeft-5;
+        b.initTop=b.offsetTop-5;
+        b.initLeft=b.offsetLeft-5;
+    }
+</script>
+</body>
+</html>
